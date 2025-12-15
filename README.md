@@ -41,7 +41,7 @@ No external libraries. No setup drama.
 Clone the repository:
 
 ```bash
-git clone https://github.com/USERNAME/task-tracker-cli.git
+git clone https://github.com/AikoAii/task-tracker-cli.git
 cd task-tracker-cli
 ```
 
