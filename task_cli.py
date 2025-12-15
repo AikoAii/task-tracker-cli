@@ -1,57 +1,56 @@
-from datetime import datetime
-from storage import load_tasks, save_tasks
+#!/usr/bin/env python3
 
-def _timestamp():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+import sys
+from task_manager import (
+    add_task,
+    update_task,
+    delete_task,
+    mark_task,
+    list_tasks
+)
 
-def _next_id(tasks):
-    if not tasks:
-        return 1
-    return max(task["id"] for task in tasks) + 1
+def main():
+    if len(sys.argv) < 2:
+        print("No command provided")
+        return
 
-def add_task(description):
-    tasks = load_tasks()
-    task = {
-        "id": _next_id(tasks),
-        "description": description,
-        "status": "todo",
-        "createdAt": _timestamp(),
-        "updatedAt": _timestamp()
-    }
-    tasks.append(task)
-    save_tasks(tasks)
-    return task["id"]
+    command = sys.argv[1]
 
-def update_task(task_id, description):
-    tasks = load_tasks()
-    for task in tasks:
-        if task["id"] == task_id:
-            task["description"] = description
-            task["updatedAt"] = _timestamp()
-            save_tasks(tasks)
-            return True
-    return False
+    try:
+        if command == "add":
+            task_id = add_task(sys.argv[2])
+            print(f"Task added (ID: {task_id})")
 
-def delete_task(task_id):
-    tasks = load_tasks()
-    new_tasks = [t for t in tasks if t["id"] != task_id]
-    if len(new_tasks) == len(tasks):
-        return False
-    save_tasks(new_tasks)
-    return True
+        elif command == "update":
+            ok = update_task(int(sys.argv[2]), sys.argv[3])
+            print("Task updated" if ok else "Task not found")
 
-def mark_task(task_id, status):
-    tasks = load_tasks()
-    for task in tasks:
-        if task["id"] == task_id:
-            task["status"] = status
-            task["updatedAt"] = _timestamp()
-            save_tasks(tasks)
-            return True
-    return False
+        elif command == "delete":
+            ok = delete_task(int(sys.argv[2]))
+            print("Task deleted" if ok else "Task not found")
 
-def list_tasks(status=None):
-    tasks = load_tasks()
-    if status:
-        return [t for t in tasks if t["status"] == status]
-    return tasks
+        elif command == "mark-in-progress":
+            ok = mark_task(int(sys.argv[2]), "in-progress")
+            print("Updated" if ok else "Task not found")
+
+        elif command == "mark-done":
+            ok = mark_task(int(sys.argv[2]), "done")
+            print("Updated" if ok else "Task not found")
+
+        elif command == "list":
+            status = sys.argv[2] if len(sys.argv) > 2 else None
+            tasks = list_tasks(status)
+            if not tasks:
+                print("No tasks found")
+                return
+            for t in tasks:
+                print(f"[{t['id']}] {t['description']} | {t['status']}")
+
+        else:
+            print("Unknown command")
+
+    except (IndexError, ValueError):
+        print("Invalid arguments")
+
+if __name__ == "__main__":
+    main()
