@@ -143,5 +143,5 @@ Small project, real practice.
 ---
 
 ```txt
-( •̀ ω •́ )✧ have fun hacking
+have fun:3
 ```
